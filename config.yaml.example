@@ -1,0 +1,16 @@
+# Claude-Termux-Bridge Configuration
+# Copy this to .env and customize
+
+# Server settings
+PORT=8000
+
+# Authentication (auto-generated if not set)
+# TERMUX_AUTH_TOKEN=your_secure_token_here
+
+# Security settings
+MAX_FILE_SIZE=10485760  # 10MB in bytes
+COMMAND_TIMEOUT=60     # seconds
+
+# Logging
+LOG_FILE=bridge.log
+LOG_LEVEL=INFO

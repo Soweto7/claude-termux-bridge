@@ -1,0 +1,10 @@
+# Claude-Termux-Bridge Dependencies
+
+# MCP and server
+mcp[cli]>=1.0.0
+fastmcp>=0.1.0
+starlette>=0.27.0
+uvicorn>=0.23.0
+
+# Security
+python-dotenv>=1.0.0
