@@ -16,6 +16,36 @@ Connect your **Claude Android App** directly to your **Termux terminal**. This b
 1. **Termux** installed on your Android device (get it from [F-Droid](https://f-droid.org/en/packages/com.termux/))
 2. **Claude Pro/Team/Enterprise subscription** (required for remote MCP)
 3. **Internet connection** on your Android device
+4. **Cloudflared** (auto-installed by the script, see below)
+
+### What the Installer Installs
+
+The `install.sh` script automatically installs:
+- ✅ Python 3 + pip
+- ✅ Git, Node.js, curl
+- ✅ **cloudflared** (Cloudflare Tunnel - creates your public URL)
+- ✅ MCP Python packages (fastmcp, starlette, uvicorn)
+
+> **No manual installation needed!** Just run the installer.
+
+### Manual cloudflared Install (if needed)
+
+If the script fails to install cloudflared, install manually:
+
+```bash
+# Detect architecture
+ARCH=$(uname -m)
+case "$ARCH" in
+    aarch64) URL="cloudflared-linux-arm64" ;;
+    armv7l)  URL="cloudflared-linux-arm" ;;
+    x86_64)  URL="cloudflared-linux-amd64" ;;
+    *)       URL="cloudflared-linux-amd64" ;;
+esac
+
+# Download
+curl -L "https://github.com/cloudflare/cloudflared/releases/latest/download/$URL" -o "$PREFIX/bin/cloudflared"
+chmod +x "$PREFIX/bin/cloudflared"
+```
 
 ---
 
@@ -48,13 +78,34 @@ This will:
 ./start_bridge.sh
 ```
 
+The script will:
+1. Start the MCP server locally on port 8000
+2. Launch **cloudflared** to create a secure tunnel
+3. Generate a **public URL** (e.g., `https://abc123.trycloudflare.com`)
+
 **Wait for this output:**
 ```
 ✅ BRIDGE IS LIVE!
-Connect Claude to: https://xxxxx.trycloudflare.com/sse?token=YOUR_TOKEN_HERE
+Connect Claude to: https://abc123.trycloudflare.com/sse?token=YOUR_TOKEN_HERE
 ```
 
-> **Important:** Copy this full URL including the token part!
+> **Important:** Copy this full URL! It contains:
+> - The **tunnel URL** (`https://abc123.trycloudflare.com/sse`)
+> - Your **auth token** (`?token=YOUR_TOKEN_HERE`)
+
+### How the Tunnel Works
+
+```
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────┐
+│  Claude App     │ ──────▶  │  Cloudflare      │ ──────▶ │  Your       │
+│  (anywhere)     │         │  Tunnel (URL)    │         │  Android    │
+└─────────────────┘         └──────────────────┘         └─────────────┘
+                                                            (Termux+MCP)
+```
+
+- **cloudflared** creates a secure tunnel from the internet to your phone
+- Your phone isn't directly exposed - all traffic goes through Cloudflare
+- The **token** ensures only YOU can access it
 
 ---
 
